@@ -1,0 +1,9 @@
+pandas
+datasets
+requests
+tqdm
+scikit-learn
+numpy
+sentence-transformers
+torch
+transformers
