@@ -7,3 +7,7 @@ numpy
 sentence-transformers
 torch
 transformers
+fastapi 
+uvicorn
+pydantic-settings 
+python-dotenv
