@@ -1,3 +1,4 @@
+from gateway.adapters.threat_adapter import ThreatAdapter
 from gateway.models.threat import ThreatReport
 
 
@@ -15,3 +16,15 @@ class ThreatService:
             attack_probability=0.15,
             confidence=0.96
         )
+
+
+
+
+
+class ThreatService:
+
+    def __init__(self):
+        self.adapter = ThreatAdapter()
+
+    def analyze(self, prompt: str):
+        return self.adapter.analyze(prompt)

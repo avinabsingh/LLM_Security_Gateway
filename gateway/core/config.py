@@ -4,6 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     APP_NAME: str = "LLM Security Gateway"
     APP_VERSION: str = "1.0.0"
+    INTEGRATION_MODE: str = "local"
 
     LOG_LEVEL: str = "INFO"
 

@@ -1,3 +1,4 @@
+from gateway.adapters.risk_adapter import RiskAdapter
 from gateway.models.risk import RiskReport
 from gateway.models.threat import ThreatReport
 
@@ -23,3 +24,14 @@ class RiskService:
             action="ALLOW",
             confidence=0.94
         )
+
+
+
+
+class RiskService:
+
+    def __init__(self):
+        self.adapter = RiskAdapter()
+
+    def assess(self, report):
+        return self.adapter.assess(report)
