@@ -1,5 +1,5 @@
 from sentence_transformers import SentenceTransformer, util
-from known_attacks import KNOWN_ATTACKS
+from features.known_attacks import KNOWN_ATTACKS
 
 
 class SemanticFeatures:
