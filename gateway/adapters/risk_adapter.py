@@ -1,9 +1,19 @@
+import sys
+
 from gateway.core.config import settings
 from gateway.models.risk import RiskReport
 from gateway.models.threat import ThreatReport
 
 
+sys.path.insert(0, "detection")
+
+from inference.risk_fusion_engine import RiskFusionEngine
+
+
 class RiskAdapter:
+
+    def __init__(self):
+        self.engine = RiskFusionEngine(threshold=0.92)
 
     def assess(self, report: ThreatReport) -> RiskReport:
 
@@ -14,19 +24,13 @@ class RiskAdapter:
 
     def _local(self, report: ThreatReport) -> RiskReport:
 
-        if report.attack_probability > 0.8:
-            return RiskReport(
-                risk_score=95,
-                risk_level="Critical",
-                action="BLOCK",
-                confidence=0.98,
-            )
+        result = self.engine.analyze(report.prompt)
 
         return RiskReport(
-            risk_score=18,
-            risk_level="Low",
-            action="ALLOW",
-            confidence=0.95,
+            risk_score=result["risk_score"],
+            risk_level=result["risk_level"],
+            action=result["decision"],
+            confidence=result["attack_probability"],
         )
 
     def _remote(self, report: ThreatReport) -> RiskReport:

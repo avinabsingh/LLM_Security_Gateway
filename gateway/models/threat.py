@@ -3,6 +3,8 @@ from pydantic import BaseModel
 
 class ThreatReport(BaseModel):
 
+    prompt: str
+
     linguistic: dict
 
     structural: dict

@@ -18,12 +18,13 @@ class ThreatAdapter:
         """
 
         return ThreatReport(
-            linguistic={},
-            structural={},
-            semantic={},
-            attack_probability=0.15,
-            confidence=0.96,
-        )
+    prompt=prompt,
+    linguistic={},
+    structural={},
+    semantic={},
+    attack_probability=0.15,
+    confidence=0.96,
+)
 
     def _remote(self, prompt: str) -> ThreatReport:
         """
