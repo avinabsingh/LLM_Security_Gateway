@@ -61,7 +61,6 @@ class FeatureVectorBuilder:
 
         obfuscation = report["obfuscation"]
 
-
         vector = [
 
             # Linguistic

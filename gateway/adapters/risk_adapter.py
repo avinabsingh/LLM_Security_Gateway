@@ -29,8 +29,9 @@ class RiskAdapter:
         return RiskReport(
             risk_score=result["risk_score"],
             risk_level=result["risk_level"],
-            action=result["decision"],
-            confidence=result["attack_probability"],
+            decision=result["decision"],
+            decision_reason=result["decision_reason"],
+            top_risk_factors=result["top_risk_factors"],
         )
 
     def _remote(self, report: ThreatReport) -> RiskReport:

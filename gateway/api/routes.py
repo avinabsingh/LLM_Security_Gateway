@@ -8,7 +8,7 @@ from gateway.services.gateway_service import GatewayService
 router = APIRouter()
 
 
-@router.post("/analyze", response_model=AnalyzeResponse)
+@router.post("/api/analyze", response_model=AnalyzeResponse)
 def analyze(
     request: AnalyzeRequest,
     gateway_service: GatewayService = Depends(get_gateway_service),
