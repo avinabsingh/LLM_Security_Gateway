@@ -42,14 +42,14 @@ class RiskFusionEngine:
             ROOT_DIR,
             "models",
             "hybrid",
-            "hybrid_logistic_regression.joblib"
+            "hybrid_rf_model.joblib"
         )
 
         scaler_path = os.path.join(
             ROOT_DIR,
             "models",
             "hybrid",
-            "hybrid_scaler.joblib"
+            "hybrid_rf_scaler.joblib"
         )
 
         print("\nLoading Risk Fusion model...")
@@ -166,18 +166,23 @@ class RiskFusionEngine:
         feature_contributions = []
 
         # 3. Iterate using the corrected list
+        # 3. Iterate using the corrected list
         for i in range(len(feature_columns)):
             name = feature_columns[i]
             raw = float(X.iloc[0, i])
             scaled = float(X_scaled[0, i])
-            coef = float(self.risk_model.coef_[0][i])
-            contribution = scaled * coef
+            
+            # NEW: Use Random Forest feature importances instead of linear coefficients
+            importance = float(self.risk_model.feature_importances_[i])
+            
+            # NEW: Calculate UI contribution proxy using importance 
+            contribution = importance * raw
 
             feature_contributions.append({
                 "feature": name,
                 "value": raw,
                 "scaled": scaled,
-                "coefficient": coef,
+                "coefficient": importance, # Passing importance through the existing pipeline
                 "contribution": contribution
             })
 
@@ -185,7 +190,7 @@ class RiskFusionEngine:
                 f"{name:30s} "
                 f"raw={raw:10.4f} "
                 f"scaled={scaled:10.4f} "
-                f"coef={coef:10.4f} "
+                f"importance={importance:10.4f} "
                 f"contribution={contribution:10.4f}"
             )
 
@@ -199,8 +204,8 @@ class RiskFusionEngine:
         print("\nTOP 5 RISK FACTORS")
         for factor in top_risk_factors:
             print(f"{factor['feature']:30s} contribution={factor['contribution']:10.4f}")
-
-        print("\nINTERCEPT:", self.risk_model.intercept_[0])
+            
+        # NOTE: self.risk_model.intercept_[0] has been completely removed.
 
         # =================================================
         # STEP 5: RISK FUSION PREDICTION
