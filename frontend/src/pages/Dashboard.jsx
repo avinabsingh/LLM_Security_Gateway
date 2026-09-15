@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Shield, Send, AlertOctagon, CheckCircle } from "lucide-react";
+import { Shield, Send, AlertOctagon, CheckCircle, Brain } from "lucide-react";
 import RiskBadge from "../components/RiskBadge";
 import RiskFactors from "../components/RiskFactors";
+import { featureDictionary } from "../config/xaiConfig";
 
 export default function Dashboard() {
   const [prompt, setPrompt] = useState("");
@@ -11,7 +12,6 @@ export default function Dashboard() {
 
   const analyzePrompt = async () => {
     if (!prompt.trim()) return;
-
     setIsScanning(true);
     setError(null);
     setReport(null);
@@ -27,15 +27,39 @@ export default function Dashboard() {
         throw new Error("Failed to connect to the Security Gateway");
 
       const data = await response.json();
-
-      // Successfully extracts the nested RiskReport object from AnalyzeResponse
       setReport(data.risk);
-      console.log("Received RiskReport:", data);
     } catch (err) {
       setError(err.message);
     } finally {
       setIsScanning(false);
     }
+  };
+
+  // Helper function to render the natural language XAI summary
+  const renderXAIAssessment = () => {
+    if (
+      !report ||
+      report.decision !== "BLOCK" ||
+      !report.top_risk_factors?.length
+    )
+      return null;
+
+    const primaryFactor = report.top_risk_factors[0].feature;
+    const meta = featureDictionary[primaryFactor];
+    const primaryLabel = meta ? meta.label : primaryFactor;
+
+    return (
+      <div className="mt-4 p-4 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 flex items-start space-x-3">
+        <Brain className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+        <div>
+          <span className="font-bold text-slate-900 mr-2">AI Assessment:</span>
+          This request was neutralized primarily because it triggered our{" "}
+          <span className="font-bold">{primaryLabel}</span> guardrail.
+          {meta &&
+            ` Specifically, it flagged highly for ${meta.description.toLowerCase()}`}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -94,38 +118,43 @@ export default function Dashboard() {
                 : "bg-green-50 border-green-200"
             }`}
           >
-            <div className="flex items-center mb-4 md:mb-0">
-              {report.decision === "BLOCK" ? (
-                <AlertOctagon className="w-10 h-10 text-red-600 mr-4" />
-              ) : (
-                <CheckCircle className="w-10 h-10 text-green-600 mr-4" />
-              )}
-              <div>
-                <h2
-                  className={`text-2xl font-black tracking-tight ${
-                    report.decision === "BLOCK"
-                      ? "text-red-900"
-                      : "text-green-900"
-                  }`}
-                >
-                  VERDICT: {report.decision}
-                </h2>
-                <p
-                  className={`text-sm font-semibold mt-1 uppercase tracking-wider ${
-                    report.decision === "BLOCK"
-                      ? "text-red-700"
-                      : "text-green-700"
-                  }`}
-                >
-                  Reason:{" "}
-                  {report?.decision_reason
-                    ? report.decision_reason.replace(/_/g, " ")
-                    : "N/A"}
-                </p>
+            <div className="flex flex-col mb-4 md:mb-0 w-full md:w-auto">
+              <div className="flex items-center">
+                {report.decision === "BLOCK" ? (
+                  <AlertOctagon className="w-10 h-10 text-red-600 mr-4" />
+                ) : (
+                  <CheckCircle className="w-10 h-10 text-green-600 mr-4" />
+                )}
+                <div>
+                  <h2
+                    className={`text-2xl font-black tracking-tight ${
+                      report.decision === "BLOCK"
+                        ? "text-red-900"
+                        : "text-green-900"
+                    }`}
+                  >
+                    VERDICT: {report.decision}
+                  </h2>
+                  <p
+                    className={`text-sm font-semibold mt-1 uppercase tracking-wider ${
+                      report.decision === "BLOCK"
+                        ? "text-red-700"
+                        : "text-green-700"
+                    }`}
+                  >
+                    Reason:{" "}
+                    {report?.decision_reason
+                      ? report.decision_reason.replace(/_/g, " ")
+                      : "N/A"}
+                  </p>
+                </div>
               </div>
+
+              {/* Insert the XAI Summary Here */}
+              {renderXAIAssessment()}
             </div>
 
-            <div className="flex flex-col items-end w-full md:w-auto bg-white p-3 rounded-xl shadow-sm border border-slate-100">
+            <div className="flex flex-col items-end w-full md:w-auto bg-white p-3 rounded-xl shadow-sm border border-slate-100 md:ml-4">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
                 Risk Profile
               </span>
