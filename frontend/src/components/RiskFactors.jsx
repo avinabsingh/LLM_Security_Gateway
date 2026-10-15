@@ -15,14 +15,31 @@ export default function RiskFactors({ factors }) {
 
       <ul className="divide-y divide-slate-100">
         {factors.map((factor, index) => {
-          // Lookup the feature in our dictionary, or provide a fallback
-          const meta = featureDictionary[factor.feature] || {
-            label: factor.feature,
-            category: "Metric",
-            color: "bg-slate-100 text-slate-800",
-            description:
-              "Raw mathematical contribution to the final risk score.",
-          };
+          // Dedicated fallback metadata for the multi-turn feature
+          const isContextDrift = factor.feature === "Context_Drift";
+          const defaultMeta = isContextDrift
+            ? {
+                label: "Context Drift ",
+                category: "STATEFUL",
+                color: "bg-purple-100 text-purple-800 border border-purple-200",
+                description:
+                  "Sequential escalation of threat intent across consecutive dialogue turns.",
+              }
+            : {
+                label: factor.feature,
+                category: "Metric",
+                color: "bg-slate-100 text-slate-800",
+                description:
+                  "Raw mathematical contribution to the final risk score.",
+              };
+
+          const meta = featureDictionary[factor.feature] || defaultMeta;
+
+          // Safe numeric parsing for contribution
+          const numericWeight =
+            typeof factor.contribution === "string"
+              ? parseFloat(factor.contribution.replace("+", ""))
+              : Number(factor.contribution || 0);
 
           return (
             <li
@@ -35,7 +52,6 @@ export default function RiskFactors({ factors }) {
 
                 <div className="relative group flex items-center">
                   <Info className="w-4 h-4 text-slate-400 cursor-help" />
-                  {/* Tooltip */}
                   <div className="absolute left-6 w-64 p-2.5 text-xs text-white bg-slate-800 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 shadow-xl pointer-events-none">
                     {meta.description}
                   </div>
@@ -51,13 +67,13 @@ export default function RiskFactors({ factors }) {
               {/* Right Side: Model Weight */}
               <span
                 className={`font-mono text-sm px-2.5 py-1 rounded-md ${
-                  factor.contribution > 0
+                  numericWeight > 0
                     ? "bg-rose-100 text-rose-700"
                     : "bg-emerald-100 text-emerald-700"
                 }`}
               >
-                {factor.contribution > 0 ? "+" : ""}
-                {factor.contribution.toFixed(4)}
+                {numericWeight > 0 ? "+" : ""}
+                {numericWeight.toFixed(4)}
               </span>
             </li>
           );

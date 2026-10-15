@@ -176,7 +176,7 @@ class RiskFusionEngine:
             importance = float(self.risk_model.feature_importances_[i])
             
             # NEW: Calculate UI contribution proxy using importance 
-            contribution = importance * raw
+            contribution = importance * abs(scaled)
 
             feature_contributions.append({
                 "feature": name,

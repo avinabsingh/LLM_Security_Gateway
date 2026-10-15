@@ -1,9 +1,8 @@
-from pydantic import BaseModel, Field
-
+from pydantic import BaseModel
 
 class AnalyzeRequest(BaseModel):
-    prompt: str = Field(
-        ...,
-        min_length=1,
-        description="Prompt submitted by the user."
-    )
+    prompt: str
+
+class MultiTurnRequest(BaseModel):
+    prompt: str
+    session_id: str
